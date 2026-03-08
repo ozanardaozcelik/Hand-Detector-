@@ -1,36 +1,41 @@
-# ✋ Hand Gesture Detector
+# 🖐️ Hand Gesture Detector
 
-A real-time hand gesture recognition project built with Python, OpenCV and MediaPipe.
+Real-time hand gesture recognition using OpenCV and MediaPipe. Detects both hands simultaneously, works correctly whether your palm is facing toward or away from the camera.
 
 ---
 
-## 🎯 Supported Gestures
+## ✨ Features
 
-| Gesture | Name |
+- 🖐️ Detects up to **2 hands** simultaneously
+- 🔄 Works for both **palm-facing** and **back-of-hand** orientations
+- 🤚 Supports **Left & Right hand** detection separately
+- 📐 **Rotation-corrected** finger tracking (works at any hand angle)
+- ⚡ Real-time processing via webcam
+
+---
+
+## 🤟 Supported Gestures
+
+| Gesture | Description |
 |---|---|
-| ✊ | Punch |
-| ✋ | Open Hand |
-| ✌️ | Peace |
-| 👍 | Like |
-| 🖕 | Middle Finger |
+| ✊ **Punch** | All fingers closed |
+| 🖐️ **Open Hand** | All fingers open |
+| ✌️ **Peace** | Index + Middle finger open |
+| 👍 **Like** | Only thumb open |
+| 🖕 **Middle Finger** | Only middle finger open |
 
 ---
 
 ## 🛠️ Requirements
 
-- Python 3.8+
+- Python 3.7+
 - OpenCV
-- MediaPipe 0.10.9
-- Protobuf 3.20.3
+- MediaPipe
 
----
-
-## 📦 Installation
+Install dependencies:
 
 ```bash
-pip install protobuf==3.20.3
-pip install mediapipe==0.10.9
-pip install opencv-python
+pip install opencv-python mediapipe
 ```
 
 ---
@@ -38,48 +43,50 @@ pip install opencv-python
 ## 🚀 Usage
 
 ```bash
-python main.py
+python hand_detector.py
 ```
 
-- Press **Q** to quit
-- Uses external camera by default (`VideoCapture(1)`) — change to `0` for built-in webcam
+- Press **`q`** to quit
 
----
-
-## 🧠 How It Works
-
-MediaPipe detects **21 landmarks** on the hand. Each finger has a tip and base knuckle point. By comparing their coordinates:
-
-- **y-axis** → finger up or down (index, middle, ring, pinky)
-- **x-axis** → thumb open or closed
-
-```
-4   8  12  16  20   ← fingertips
-|   |   |   |   |
-3   7  11  15  19
-|   |   |   |   |
-2   6  10  14  18
-|   |   |   |   |
-1   5   9  13  17
- \  |   |   |  /
-         0          ← wrist
-```
-
-The `get_finger_status()` function returns a list like `[thumb, index, middle, ring, pinky]` where `1 = open` and `0 = closed`. The `detect_gesture()` function matches this list to a known gesture.
+> **Note:** The script uses `cv2.VideoCapture(1)` by default. If your webcam is not detected, change `1` to `0`:
+> ```python
+> cap = cv2.VideoCapture(0)
+> ```
 
 ---
 
 ## 📁 Project Structure
 
 ```
-Hand Detector/
+hand-gesture-detector/
 │
-└── main.py
+├── hand_detector.py   # Main script
+└── README.md
 ```
 
 ---
 
-## 🙏 Credits
+## 🧠 How It Works
 
-- [OpenCV](https://opencv.org/)
-- [MediaPipe](https://mediapipe.dev/)
+1. **MediaPipe Hands** detects 21 hand landmarks per hand
+2. Hand angle is calculated using the wrist and middle finger base to normalize rotation
+3. All landmarks are rotated to a standard upright position
+4. **Palm direction** is determined by comparing the x positions of the pinky base (landmark 17) and index base (landmark 5) — no depth/z dependency
+5. Finger states (open/closed) are computed based on tip vs base y-positions in the corrected coordinate space
+6. Gesture is matched against predefined finger patterns
+
+---
+
+## 📸 Demo
+
+```
+Right: [1, 1, 1, 1, 1] → Open Hand
+Left:  [0, 0, 0, 0, 0] → Punch
+Right: [0, 1, 1, 0, 0] → Peace
+```
+
+---
+
+## 📄 License
+
+MIT License — free to use and modify.
